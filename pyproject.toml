@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "transformer-scratch"
+version = "0.1.0"
+description = "Transformer scratch implementation for learning"
+authors = ["koara"]
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.11"
+requests = "^2.31.0"
+scikit-learn = "^1.3.0"
+torch = "^2.2.0"
+matplotlib = "^3.8.0"
+torchtext = "^0.17.0"
+setuptools = "*"
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.8.0"
+isort = "^5.12.0"
+flake8 = "^6.1.0"
+black = "^24.1.0"
+pytest = "^8.0.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
