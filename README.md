@@ -2,7 +2,9 @@
 
 PyTorchを用いたTransformerのスクラッチ実装レポジトリです。
 
-参考[https://zenn.dev/yukiyada/articles/59f3b820c52571]
+参考文献
+- https://zenn.dev/yukiyada/articles/59f3b820c52571
+- https://arxiv.org/pdf/1706.03762
 
 ## セットアップ
 1. `poetry install` を実行する

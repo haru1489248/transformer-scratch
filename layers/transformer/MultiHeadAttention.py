@@ -82,5 +82,5 @@ class MultiHeadAttention(nn.Module):
         # 3. 最終的な表現への昇華:
         #    ただの羅列を、次段の層が受け取れる「洗練された一つの文脈ベクトル」
         #    (d_model次元) へと統合・再構成して出力する
-        output = self.Linear(attention_output)
+        output = self.linear(attention_output)
         return output
