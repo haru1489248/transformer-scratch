@@ -11,6 +11,7 @@ PyTorchを用いたTransformerのスクラッチ実装レポジトリです。
 
 
 ## プロジェクト構成
+```text
 。
 ├── const // pathなどの定数値
 │   └── path.py
@@ -46,3 +47,4 @@ PyTorchを用いたTransformerのスクラッチ実装レポジトリです。
     ├── download.py
     ├── evaluation/
     └── text/
+```
