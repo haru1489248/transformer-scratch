@@ -22,8 +22,13 @@ class MultiHeadAttention(nn.Module):
             torch.Tensor(h, d_model, self.d_v) # ヘッド数, 入力次元, 出力次元（=入力次元/ヘッド数）
         )
 
-        self.scaled_dot_product_attention = ScaledDotProductAttention(self.d_k)
+        # パラメータの初期値を設定する
+        nn.init.xavier_uniform_(self.W_k)
+        nn.init.xavier_uniform_(self.W_q)
+        nn.init.xavier_uniform_(self.W_v)
 
+        self.scaled_dot_product_attention = ScaledDotProductAttention(self.d_k)
+        # W shape = (d_model, h * d_v) b shape = (d_model)
         self.linear = nn.Linear(h * self.d_v, d_model)
 
     def forward(
@@ -33,29 +38,37 @@ class MultiHeadAttention(nn.Module):
             v: torch.Tensor,
             mask_3d: torch.Tensor = None,
     ) -> torch.Tensor:
-        batch_size, seq_len = q.size(0), q.size(1)
+        """
+        [Encoder]
+        q, k, v = x (batch_size, seq_len, d_model)
+        mask_3d = pad_mask (batch_size, seq_len, seq_len)
+        """
+        batch_size = q.size(0)
+        q_seq_len = q.size(1)
+        k_seq_len = k.size(1)
+        v_seq_len = v.size(1)
 
         """repeat Query,Key,Value by num of heads"""
         # repeat()の1は元のサイズのまま維持する意味
-        q = q.repeat(self.h, 1, 1, 1) # head, batch_size, seq_len, d_model
-        k = k.repeat(self.h, 1, 1, 1) # head, batch_size, seq_len, d_model
-        v = v.repeat(self.h, 1, 1, 1) # head, batch_size, seq_len, d_model
+        q = q.repeat(self.h, 1, 1, 1) # head, batch_size, q_seq_len, d_model
+        k = k.repeat(self.h, 1, 1, 1) # head, batch_size, k_seq_len, d_model
+        v = v.repeat(self.h, 1, 1, 1) # head, batch_size, v_seq_len, d_model
 
         """Linear before scaled dot product attention"""
         q = torch.einsum(
             "hijk,hkl->hijl", (q, self.W_q)
-        ) # head, batch_size, seq_len, d_k
+        ) # head, batch_size, q_seq_len, d_k
         k = torch.einsum(
             "hijk,hkl->hijl", (k, self.W_k)
-        ) # head, batch_size, seq_len, d_k
+        ) # head, batch_size, k_seq_len, d_k
         v = torch.einsum(
             "hijk,hkl->hijl", (v, self.W_v)
-        ) # head, batch_size, seq_len, d_v
+        ) # head, batch_size, v_seq_len, d_v
 
         """Split heads"""
-        q = q.view(self.h * batch_size, seq_len, self.d_k)
-        k = k.view(self.h * batch_size, seq_len, self.d_k)
-        v = v.view(self.h * batch_size, seq_len, self.d_v)
+        q = q.view(self.h * batch_size, q_seq_len, self.d_k)
+        k = k.view(self.h * batch_size, k_seq_len, self.d_k)
+        v = v.view(self.h * batch_size, v_seq_len, self.d_v)
 
         if mask_3d is not None:
             mask_3d = mask_3d.repeat(self.h, 1, 1)
@@ -63,13 +76,13 @@ class MultiHeadAttention(nn.Module):
         """Scaled dot product attention"""
         attention_output = self.scaled_dot_product_attention(
             q, k, v, mask_3d
-        ) # (head*batch_size, seq_len, d_v)
+        ) # (head*batch_size, q_seq_len, d_v)
 
         # torch.chunk()は指定したdimに沿って、第一引数を第二引数分の数に行列を分割する（返り値はTensorがh個入ったPythonのList）
-        # attention_output = (batch_size, seq_len, d_v) * h個のリスト
+        # attention_output = (batch_size, q_seq_len, d_v) * h個のリスト
         attention_output = torch.chunk(attention_output, self.h, dim=0)
         # torch.cat()は指定したdimに沿って、第一引数を連結する
-        # attention_output shape = (batch_size, seq_len, d_v*h) = (batch_size, seq_len, d_model)
+        # attention_output shape = (batch_size, q_seq_len, d_v*h) = (batch_size, q_seq_len, d_model)
         attention_output = torch.cat(attention_output, dim=2)
 
         """Linear after scaled dot product attention"""

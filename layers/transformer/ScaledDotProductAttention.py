@@ -26,7 +26,7 @@ class ScaledDotProductAttention(nn.Module):
         '''
         scalar = np.sqrt(self.d_k)
         # torch.transpose()は指定した位置の次元を転置する
-        attention_weight = torch.matmul(q, torch.transpose(k, 1, 2)) / scalar # Q * X^T / (D^0.5) を計算
+        attention_weight = torch.matmul(q, torch.transpose(k, 1, 2)) / scalar # Q * X^T / (D^0.5) を計算 shapeは(head * batch_size, seq_len, seq_len)になる
 
         if mask is not None:
             if mask.dim() != attention_weight.dim():

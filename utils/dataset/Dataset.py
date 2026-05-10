@@ -4,6 +4,9 @@ from torch import Tensor
 from torch.utils.data import Dataset
 
 class KfttDataset(Dataset):
+    """
+    KFTT (Kyoto Free Translation Task)
+    """
     def __init__(
             self,
             path_to_src_corpus: str,

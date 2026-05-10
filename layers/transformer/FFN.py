@@ -2,7 +2,7 @@ import torch
 from torch import nn
 from torch.nn.functional import relu
 
-class FNN(nn.Module):
+class FFN(nn.Module):
     '''
     Feed-Forward Networks
     二つの全結合層を重ねた層（活性化関数にはreluを使用）

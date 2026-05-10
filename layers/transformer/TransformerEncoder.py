@@ -69,7 +69,7 @@ class TransformerEncoder(nn.Module):
         )
 
     def forward(self, x: torch.Tensor, mask: torch.Tensor = None) -> torch.Tensor:
-        x = self.embedding(x)
+        x = self.embedding(x) # (batch_size, seq_len, d_model)
         x = self.positional_encoding(x)
         for encoder_layer in self.encoder_layers:
             x = encoder_layer(x, mask)

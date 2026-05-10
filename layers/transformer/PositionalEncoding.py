@@ -38,3 +38,4 @@ class AddPositionalEncoding(nn.Module):
         [self._get_positional_encoding(pos, i) for i in range(1, self.d_model + 1)]
         for pos in range(1, self.max_len + 1)
         ]
+        return torch.tensor(positional_encoding_weight).float()

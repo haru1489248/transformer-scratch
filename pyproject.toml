@@ -13,6 +13,7 @@ torch = "^2.2.0"
 matplotlib = "^3.8.0"
 torchtext = "^0.17.0"
 setuptools = "*"
+numpy = "<2.0"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.8.0"
