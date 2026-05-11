@@ -27,6 +27,8 @@ class TransformerEncoderLayer(nn.Module):
         self.layer_norm_ffn = LayerNorm(d_model, eps=layer_norm_eps)
 
     def forward(self, x: torch.Tensor, mask: torch.Tensor = None) -> torch.Tensor:
+        # スキップコネクションをするため、xを足している
+        # スキップコネクションは層が深くなっても勾配が伝わりやすくするためのもの
         x = self.layer_norm_self_attention(self.__self_attention_block(x, mask) + x)
         x = self.layer_norm_ffn(self.__feed_forward_block(x) + x)
         return x

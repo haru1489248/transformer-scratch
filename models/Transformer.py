@@ -73,7 +73,7 @@ class Transformer(nn.Module):
         # mask
         pad_mask_src = self._pad_mask(src)
 
-        # src shape = (batch_size, seq_len, d_model)
+        # output src shape = (batch_size, seq_len, d_model)
         src = self.encoder(src, pad_mask_src)
 
         # target系列の"0(BOS)~max_len-1"(max_len-1系列)までを入力し、"1~max_len"(max_len-1系列)を予測する
@@ -227,12 +227,12 @@ class Transformer(nn.Module):
         x : torch.Tensor
             単語のid列. [batch_size, max_len]
         """
-        seq_len = x.size(1)
         # eq()等しいかどうかを比較しbooleanで埋める
         mask = x.eq(self.pad_idx)  # 0 is <pad> in vocab
-        mask = mask.unsqueeze(1)
-        mask = mask.repeat(1, seq_len, 1)  # (batch_size, max_len, max_len)
-        return mask.to(self.device)
+        # ここでseq_len分repeatするとsrcとtgtのseq_lenが異なると、cross attention計算の
+        # 行列積ができない
+        # (batch_size, 1, max_len) にすることで、ブロードキャストでseq_lenがどの長さでも行列積ができるようにする
+        return mask.unsqueeze(1).to(self.device)
 
     def _subsequent_mask(self, x: torch.Tensor) -> torch.Tensor:
         """DecoderのMasked-Attentionに使用するmaskを作成する.Causalと呼ばれる

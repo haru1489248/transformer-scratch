@@ -248,6 +248,7 @@ if __name__ == "__main__":
     layer_norm_eps = 1e-8
     pad_idx = 0
     batch_size = 100
+    lr = 0.0001
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     max_epoch = 10
@@ -318,7 +319,7 @@ if __name__ == "__main__":
     """
     trainer = Trainer(
         net,
-        optim.Adam(net.parameters(), lr=0.001, betas=(0.9, 0.999), amsgrad=True), # TODO: amsgradについて調べる
+        optim.Adam(net.parameters(), lr=lr, betas=(0.9, 0.999), amsgrad=True), # TODO: amsgradについて調べる
         nn.CrossEntropyLoss(ignore_index=pad_idx),
         BleuScore(tgt_vocab),
         device,

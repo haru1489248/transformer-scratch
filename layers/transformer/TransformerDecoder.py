@@ -37,6 +37,7 @@ class TransformerDecoderLayer(nn.Module):
             mask_src_tgt: torch.Tensor,
             mask_self: torch.Tensor,
     ) -> torch.Tensor:
+        # tgtを足してスキップコネクションを実装している
         tgt = self.layer_norm_self_attention(
             tgt + self.__self_attention_block(tgt, mask_self)
         )
@@ -92,11 +93,12 @@ class TransformerDecoder(nn.Module):
 
     def forward(
             self,
-            tgt: torch.Tensor, # Decoder input
-            src: torch.Tensor, # Encoder output
-            mask_src_tgt: torch.Tensor,
-            mask_self: torch.Tensor,
+            tgt: torch.Tensor, # Decoder input (batch_size, tgt_seq_len)
+            src: torch.Tensor, # Encoder output (batch_size, src_seq_len, d_model)
+            mask_src_tgt: torch.Tensor, # srcのpad mask
+            mask_self: torch.Tensor, # tgtのpadとattentionのmask
     ) -> torch.Tensor:
+        # output tgt shape = (batch_size, seq_len, d_model)
         tgt = self.embedding(tgt)
         tgt = self.positional_encoding(tgt)
         for decoder_layer in self.decoder_layers:

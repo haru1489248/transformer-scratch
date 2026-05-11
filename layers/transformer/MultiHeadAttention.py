@@ -40,8 +40,15 @@ class MultiHeadAttention(nn.Module):
     ) -> torch.Tensor:
         """
         [Encoder]
-        q, k, v = x (batch_size, seq_len, d_model)
-        mask_3d = pad_mask (batch_size, seq_len, seq_len)
+        q, k, v = x (batch_size, src_seq_len, d_model)
+        mask_3d = src_pad_mask (batch_size, seq_len, seq_len)
+        [Decoder]
+        q, k, v = x (batch_size, tgt_seq_len, d_model)
+        mask_3d = tgt_pad_mask + tgt_causal_mask
+        [Encoder-Decoder]
+        k, v = encoder_output (batch_size, src_seq_len, d_model)
+        q = decoder_input (batch_size, tgt_seq_len, d_model)
+        mask_3d = src_pad_mask
         """
         batch_size = q.size(0)
         q_seq_len = q.size(1)
